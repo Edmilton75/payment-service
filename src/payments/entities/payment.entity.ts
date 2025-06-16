@@ -1,14 +1,37 @@
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+
 export enum PaymentStatus {
   PENDING = 'PENDING',
   CONFIRMED = 'CONFIRMED',
   FAILED = 'FAILED',
 }
 
-export interface Payment {
+@Entity('payments') // Mapeia esta classe para uma tabela chmanada 'payments'
+export class Payment {
+  @PrimaryGeneratedColumn('uuid')
   id: string;
-  merchantId: string; // ID do merchant que está recebendo
-  amount: number; // Valor em centavos
-  currency: string; // Ex: 'BRL', 'USD'
+
+  @Column()
+  merchantId: string;
+
+  @Column({ type: 'integer' }) // Usamos integer pois estamos armazenando centavos
+  amount: number;
+
+  @Column()
+  currency: string;
+
+  @Column({
+    type: 'enum',
+    enum: PaymentStatus,
+    default: PaymentStatus.PENDING,
+  })
   status: PaymentStatus;
+
+  @CreateDateColumn()
   createdAt: Date;
 }
