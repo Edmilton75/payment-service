@@ -1,32 +1,24 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Payment, PaymentStatus } from './entities/payment.entity';
-import { v4 as uuidv4 } from 'uuid';
-
-// Vamos definir o DTO aqui temporariamente. Depois moveremos para um arquivo.
-interface CreatePaymentDto {
-  merchantId: string;
-  amount: number;
-  currency: string;
-}
+import { Payment } from './entities/payment.entity';
+import { CreatePaymentDto } from './dto/create-payment.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class PaymentsService {
   // Nosso "banco de dados" de pagamentos em memória
-  private readonly payments: Payment[] = [];
+  constructor(
+    @InjectRepository(Payment)
+    private readonly paymentRepository: Repository<Payment>,
+  ) {}
 
   async create(createPaymentDto: CreatePaymentDto): Promise<Payment> {
-    const newPayment: Payment = {
-      id: uuidv4(),
-      ...createPaymentDto,
-      status: PaymentStatus.PENDING, // Todo novo pagamento começa como pendente
-      createdAt: new Date(),
-    };
-    this.payments.push(newPayment);
-    return newPayment;
+    const newPayment = this.paymentRepository.create(createPaymentDto);
+    return this.paymentRepository.save(newPayment);
   }
 
   async findOne(id: string): Promise<Payment> {
-    const payment = this.payments.find((p) => p.id === id);
+    const payment = await this.paymentRepository.findOne({ where: { id } });
     if (!payment) {
       throw new NotFoundException(`Payment with ID "${id}" not found`);
     }
