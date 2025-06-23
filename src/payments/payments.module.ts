@@ -3,10 +3,12 @@ import { PaymentsService } from './payments.service';
 import { PaymentsController } from './payments.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Payment } from './entities/payment.entity';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Payment]), // Registrar a entidade aqui
+    TypeOrmModule.forFeature([Payment]),
+    HttpModule, // Registrar a entidade aqui
   ],
   controllers: [PaymentsController],
   providers: [PaymentsService],
